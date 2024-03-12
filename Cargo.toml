@@ -3,6 +3,8 @@ name = "caravel_export_poc"
 version = "0.1.0"
 edition = "2021"
 readme = "README.md"
+description = "Caravel Module Wrapper"
+license-file = "LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
