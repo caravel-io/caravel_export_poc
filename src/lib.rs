@@ -5,6 +5,11 @@ use syn::parse_macro_input;
 use syn::ItemStruct;
 use quote::quote;
 
+/// Bring Struct.validate and Struct.apply to top level scope
+/// as C ABI compatible functions.
+/// 
+/// Creates fn StructNameValidate() and fn StructNameApply(),
+/// wrapping them in Serialization/Deserialization
 #[proc_macro_attribute]
 pub fn caravel_resource(_: TokenStream, input: TokenStream) -> TokenStream {
   let item = parse_macro_input!(input as ItemStruct);
@@ -45,7 +50,6 @@ pub fn caravel_resource(_: TokenStream, input: TokenStream) -> TokenStream {
 
     #[no_mangle]
     pub extern "C" fn #validate_shim_ident(input: *const c_char) -> *const c_char {
-      // input.to_str().unwrap().into().read_to_string(&mut input_buffer).unwrap();
       let c_str = unsafe { CStr::from_ptr(input) };
       let new_str = c_str.to_str().unwrap();
       match #resource_ident::from_json_string(new_str) {
@@ -79,7 +83,6 @@ pub fn caravel_resource(_: TokenStream, input: TokenStream) -> TokenStream {
 
     #[no_mangle]
     pub extern "C" fn #apply_shim_ident(input: *const c_char) -> *const c_char {
-        // input.to_str().unwrap().into().read_to_string(&mut input_buffer).unwrap();
         let c_str = unsafe { CStr::from_ptr(input) };
         let new_str = c_str.to_str().unwrap();
 
@@ -110,10 +113,6 @@ pub fn caravel_resource(_: TokenStream, input: TokenStream) -> TokenStream {
             CString::new(serde_json::to_string(&response).unwrap().as_str()).unwrap().into_raw()
           }
         }
-
-        // let resource = #resource_ident::from_json_string(new_str);
-        // resource.apply().unwrap();
-        // CString::new(new_str).unwrap().into_raw()
     }
   }.into()
 }
